@@ -11,11 +11,10 @@ def read_clean_file(args):
     text = my_file.read()
     my_file.close()
 
-    text = text.replace("\n"," ")
     text = text.replace("--", " ")
 
-    words = text.split(" ")
-    
+    words = text.split()
+
     clean_words = []
 
     for word in words:
@@ -37,14 +36,13 @@ def make_chains(clean_words):
 
     for i in range(len(clean_words)-2):
 
-        tuple_word1 = clean_words[i]
-        tuple_word2 = clean_words[i+1]
+        tuple_words = (clean_words[i], clean_words[i+1])
         value = clean_words[i+2]
 
-        if (tuple_word1, tuple_word2) not in markov_chains:
-            markov_chains[(tuple_word1, tuple_word2)] = [value]
+        if tuple_words not in markov_chains:
+            markov_chains[tuple_words] = [value]
         else:
-            markov_chains[(tuple_word1, tuple_word2)].append(value)
+            markov_chains[tuple_words].append(value)
 
     return markov_chains
 
@@ -54,22 +52,17 @@ def generate_random_number(return_list):
 
     return random_num
 
-def add_start_words(random_num,return_list):
+def add_start_words(random_num, tuple_list):
 
     random_text = []
 
-    start_words = return_list[random_num]
+    start_words = tuple_list[random_num]
 
-    word1, word2 = start_words
-
-    random_text.append(word1)
-    random_text.append(word2)
+    random_text.extend(start_words)
 
     return random_text
 
-def add_next_word(random_text, markov_chains):
-
-    word_tuple = (random_text[-2],random_text[-1])
+def add_next_word(word_tuple, markov_chains):
 
     possible_next_words = markov_chains[word_tuple]
 
@@ -77,9 +70,7 @@ def add_next_word(random_text, markov_chains):
 
     next_word = possible_next_words[random_num]
 
-    random_text.append(next_word)
-
-    return random_text
+    return next_word
 
 def make_text(markov_chains):
     """Takes a dictionary of markov chains and returns random text
@@ -87,20 +78,21 @@ def make_text(markov_chains):
 
     random_num = generate_random_number(markov_chains.keys())
 
-    random_text = add_start_words(random_num,markov_chains.keys())
+    random_text = add_start_words(random_num, markov_chains.keys())
 
     for i in range(100):
-        random_text = add_next_word(random_text,markov_chains)
-        i+=1
+        word_tuple = (random_text[-2],random_text[-1])
+        next_word = add_next_word(word_tuple, markov_chains)
+        random_text.append(next_word)
 
     return random_text
 
 def main():
     args = sys.argv
 
-    words = read_clean_file(args)
+    clean_words = read_clean_file(args)
 
-    markov_chains = make_chains(words)
+    markov_chains = make_chains(clean_words)
 
     random_text = make_text(markov_chains)
 
