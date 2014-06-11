@@ -3,36 +3,29 @@
 import sys
 import random
 
-def read_clean_file(args):
+def read_clean_file(argument):
 
-    filename = args[1]
+    clean_words = []
+
+    filename = argument
 
     my_file = open(filename)
     text = my_file.read()
     my_file.close()
 
-    text = text.replace("--", " ")
-
     words = text.split()
-
-    clean_words = []
 
     for word in words:
 
-        if word != "": 
-            #clean_word = word.strip('".,!?#:;()/*&')
-            #clean_word = clean_word.strip("'")
-
+        if word != "" and word.isdigit() == False:
             clean_words.append(word)
 
     return clean_words
 
-def make_chains(clean_words):
+def make_chains(markov_chains, clean_words):
 
     """Takes an input text as a string and returns a dictionary of
     markov chains."""
-
-    markov_chains = {}
 
     for i in range(len(clean_words)-2):
 
@@ -52,17 +45,26 @@ def generate_random_number(return_list):
 
     return random_num
 
-def add_start_words(random_num, tuple_list):
-
-    random_text = []
+def generate_start_words(random_num, tuple_list):
 
     start_words = tuple_list[random_num]
 
-    random_text.extend(start_words)
+    return start_words
 
-    return random_text
 
 def add_next_word(word_tuple, markov_chains):
+    
+    # if word_tuple not in markov_chains:
+
+    #     return None
+
+    #     # random_num = generate_random_number(markov_chains.keys())
+
+    #     # word_tuple = generate_start_words(random_num, markov_chains.keys())
+
+    #     # add_next_word(word_tuple, markov_chains)
+
+    # else:
 
     possible_next_words = markov_chains[word_tuple]
 
@@ -78,9 +80,14 @@ def make_text(markov_chains):
 
     random_num = generate_random_number(markov_chains.keys())
 
-    random_text = add_start_words(random_num, markov_chains.keys())
+    random_text = []
 
-    for i in range(100):
+    start_words = generate_start_words(random_num, markov_chains.keys())
+ 
+    random_text.extend(start_words)
+
+
+    for i in range(500):
         word_tuple = (random_text[-2],random_text[-1])
         next_word = add_next_word(word_tuple, markov_chains)
         random_text.append(next_word)
@@ -90,15 +97,26 @@ def make_text(markov_chains):
 def main():
     args = sys.argv
 
-    clean_words = read_clean_file(args)
+    first_text_words = read_clean_file(args[1])
 
-    markov_chains = make_chains(clean_words)
+    second_text_words = read_clean_file(args[2])
+
+    markov_chains = {}
+
+    markov_chains = make_chains(markov_chains, first_text_words)
+    markov_chains = make_chains(markov_chains, second_text_words)
 
     random_text = make_text(markov_chains)
 
-    random_text = " ".join(random_text)
+    stanza1 = " ".join(random_text[0:(len(random_text)/4)])
+    stanza2 = " ".join(random_text[(len(random_text)/4):(len(random_text)/2)])
+    stanza3 = " ".join(random_text[(len(random_text)/2):(3*(len(random_text)/4))])
+    stanza4 = " ".join(random_text[(3*(len(random_text)/4)):])
 
-    print random_text
+    random_stanzas = stanza1 + 2*"\n" + stanza2 + 2*"\n" + stanza3 + 2*"\n" + stanza4 + 2*"\n"
+
+    print random_stanzas
+
 
 if __name__ == "__main__":
     main()
