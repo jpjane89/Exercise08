@@ -45,34 +45,31 @@ def generate_random_number(return_list):
 
     return random_num
 
-def generate_start_words(random_num, tuple_list):
+def add_start_words(random_num, tuple_list, random_text):
 
     start_words = tuple_list[random_num]
+    random_text.extend(start_words)
 
-    return start_words
+    return random_text
 
 
-def add_next_word(word_tuple, markov_chains):
+def add_next_word(word_tuple, markov_chains, random_text):
     
-    # if word_tuple not in markov_chains:
+    if word_tuple not in markov_chains:
 
-    #     return None
+        random_num = generate_random_number(markov_chains.keys())
+        random_text = add_start_words(random_num, markov_chains.keys(), random_text)
+        new_word_tuple = (random_text[-2],random_text[-1])
+        add_next_word(new_word_tuple, markov_chains,random_text)
 
-    #     # random_num = generate_random_number(markov_chains.keys())
+    else:
 
-    #     # word_tuple = generate_start_words(random_num, markov_chains.keys())
+        possible_next_words = markov_chains[word_tuple]
+        random_num = generate_random_number(possible_next_words)
+        next_word = possible_next_words[random_num]
+        random_text.append(next_word)
 
-    #     # add_next_word(word_tuple, markov_chains)
-
-    # else:
-
-    possible_next_words = markov_chains[word_tuple]
-
-    random_num = generate_random_number(possible_next_words)
-
-    next_word = possible_next_words[random_num]
-
-    return next_word
+    return random_text
 
 def make_text(markov_chains):
     """Takes a dictionary of markov chains and returns random text
@@ -82,19 +79,33 @@ def make_text(markov_chains):
 
     random_text = []
 
-    start_words = generate_start_words(random_num, markov_chains.keys())
- 
-    random_text.extend(start_words)
+    random_text = add_start_words(random_num, markov_chains.keys(), random_text)
 
-
-    for i in range(500):
+    for i in range(100):
         word_tuple = (random_text[-2],random_text[-1])
-        next_word = add_next_word(word_tuple, markov_chains)
-        random_text.append(next_word)
+        random_text = add_next_word(word_tuple, markov_chains, random_text)
 
     return random_text
 
+def text_as_poem(random_text):
+
+    poem_list = []
+
+    for i in range(0,len(random_text),5):
+        line = " ".join(random_text[i:i+5]) + '\n'
+        poem_list.append(line)
+
+    poem_length = len(poem_list)
+
+    for i in range(poem_length/4,poem_length, poem_length/4):
+        poem_list[i] += '\n'
+
+    poem = " ".join(poem_list)
+
+    return poem
+
 def main():
+
     args = sys.argv
 
     first_text_words = read_clean_file(args[1])
@@ -108,14 +119,9 @@ def main():
 
     random_text = make_text(markov_chains)
 
-    stanza1 = " ".join(random_text[0:(len(random_text)/4)])
-    stanza2 = " ".join(random_text[(len(random_text)/4):(len(random_text)/2)])
-    stanza3 = " ".join(random_text[(len(random_text)/2):(3*(len(random_text)/4))])
-    stanza4 = " ".join(random_text[(3*(len(random_text)/4)):])
+    poem = text_as_poem(random_text)
 
-    random_stanzas = stanza1 + 2*"\n" + stanza2 + 2*"\n" + stanza3 + 2*"\n" + stanza4 + 2*"\n"
-
-    print random_stanzas
+    print poem
 
 
 if __name__ == "__main__":
