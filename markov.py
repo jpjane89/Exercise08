@@ -2,6 +2,7 @@
 
 import sys
 import random
+import twitter
 
 def read_clean_file(argument):
 
@@ -76,9 +77,7 @@ def make_text(markov_chains):
     based off an original text."""
 
     random_num = generate_random_number(markov_chains.keys())
-
     random_text = []
-
     random_text = add_start_words(random_num, markov_chains.keys(), random_text)
 
     for i in range(100):
@@ -104,12 +103,32 @@ def text_as_poem(random_text):
 
     return poem
 
+def text_as_tweet(random_text):
+
+    words_70 = random_text[:140]
+    words_70_dict = {}
+
+    for word in words_70:
+        new_word = word + " "
+        words_70_dict[new_word] = len(new_word)
+
+    string_length = 0
+    tweet_words = []
+
+    for new_word in words_70_dict:
+        string_length += words_70_dict[new_word]
+        if string_length <= 140:
+            tweet_words.append(new_word)
+
+    tweet_string = "".join(tweet_words)
+
+    return tweet_string
+
 def main():
 
     args = sys.argv
 
     first_text_words = read_clean_file(args[1])
-
     second_text_words = read_clean_file(args[2])
 
     markov_chains = {}
@@ -119,10 +138,11 @@ def main():
 
     random_text = make_text(markov_chains)
 
-    poem = text_as_poem(random_text)
+    #poem = text_as_poem(random_text)
 
-    print poem
+    tweet = text_as_tweet(random_text)
 
+    print tweet
 
 if __name__ == "__main__":
     main()
