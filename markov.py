@@ -91,7 +91,7 @@ def text_as_poem(random_text):
     poem_list = []
 
     for i in range(0,len(random_text),5):
-        line = " ".join(random_text[i:i+5]) + '\n'
+        line = '\n' + " ".join(random_text[i:i+5])
         poem_list.append(line)
 
     poem_length = len(poem_list)
@@ -138,11 +138,11 @@ def main():
 
     random_text = make_text(markov_chains)
 
-    #poem = text_as_poem(random_text)
+    poem = text_as_poem(random_text)
 
-    tweet = text_as_tweet(random_text)
+    #tweet = text_as_tweet(random_text)
 
-    print tweet
+    print poem
 
 if __name__ == "__main__":
     main()
